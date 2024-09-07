@@ -186,7 +186,7 @@ class ImportProductsController extends Controller
                     }
 
                     //Add not for selling
-                    $product_array['not_for_selling'] = ! empty($value[35]) && $value[35] == 1 ? 1 : 0;
+                    $product_array['not_for_selling'] = isset($value[35]) && in_array($value[35], [0, 1, 2, 3]) ? $value[35] : 0;
 
                     //Add enable stock
                     $enable_stock = trim($value[7]);
