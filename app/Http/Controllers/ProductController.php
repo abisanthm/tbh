@@ -63,8 +63,8 @@ class ProductController extends Controller
         // Build the base query
         $products = Product::query();
 
-        // Filter by category if a category_id is provided
-        if ($category_id && $category_id !== 'all') {
+        // Only filter by category if a category_id is provided and it's not 'all'
+        if (!empty($category_id) && $category_id !== 'all') {
             $products = $products->where('category_id', $category_id);
         }
 
@@ -82,6 +82,7 @@ class ProductController extends Controller
         // Return the product details as a JSON response
         return response()->json($productDetails);
     }
+
 
 
     

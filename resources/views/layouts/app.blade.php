@@ -161,6 +161,40 @@
         width: max-content;
         margin: 2px;
     }
+
+    #product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Adjust the space between items */
+}
+
+.product-itemm {
+    flex: 1 1 calc(25% - 10px); /* 4 items per row */
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    padding: 15px;
+    text-align: center;
+    box-sizing: border-box;
+    min-width: 150px;
+}
+
+.product-content h5 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.product-content p {
+    margin: 5px 0 0;
+}
+
+#load-more {
+    margin-top: 10px;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
 </style>
 
 </html>

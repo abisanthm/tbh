@@ -237,7 +237,7 @@
     });
     </script>
     <script>
-        $(document).ready(function() {
+$(document).ready(function() {
     // Function to handle location_id change or initial load
     function handleLocationChange() {
         var location_id = $('#location_id').val(); // Get the selected location_id value
@@ -258,14 +258,44 @@
                     var productList = $('#product-list');
                     productList.empty();  // Clear the current list
 
-                    // Loop through the returned product details and append them to the list
-                    $.each(response, function(index, product) {
+                    // Initially display only 5 products
+                    var displayedProducts = response.slice(0, 25);
+                    var hiddenProducts = response.slice(25);
+
+                    // Append the first 5 products in a grid format
+                    $.each(displayedProducts, function(index, product) {
                         productList.append(`
-                            <li class="btn btn-sm btn-primary product-item" data-name="${product.name}">
-                                ${product.name} - ${product.total_stock}
-                            </li>
+                            <div class="product-itemm" data-name="${product.name}">
+                                <div class="product-content">
+                                    <h5>${product.name}</h5>
+                                    <p>Stock: ${product.total_stock}</p>
+                                </div>
+                            </div>
                         `);
                     });
+
+                    // If there are more than 5 products, add a "Load More" button
+                    if (hiddenProducts.length > 0) {
+                        productList.append('<button id="load-more" class="btn btn-secondary btn-sm">Load More</button>');
+
+                        // Add event listener for "Load More" button
+                        $('#load-more').click(function() {
+                            // Append the hidden products when "Load More" is clicked
+                            $.each(hiddenProducts, function(index, product) {
+                                productList.append(`
+                                    <div class="product-itemm" data-name="${product.name}">
+                                        <div class="product-content">
+                                            <h5>${product.name}</h5>
+                                            <p>Stock: ${product.total_stock}</p>
+                                        </div>
+                                    </div>
+                                `);
+                            });
+
+                            // Remove the "Load More" button after all products are displayed
+                            $(this).remove();
+                        });
+                    }
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
@@ -285,6 +315,7 @@
     // Trigger the function on page load if location_id is already set
     handleLocationChange();
 });
+
         </script>
 @endsection
 

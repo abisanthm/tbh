@@ -243,14 +243,35 @@
                     var productList = $('#product-list');
                     productList.empty();  // Clear the current list
 
-                    // Loop through the returned product details and append them to the list
-                    $.each(response, function(index, product) {
+                    // Display only the first 5 items initially
+                    var displayedProducts = response.slice(0, 25);
+                    var hiddenProducts = response.slice(25);
+
+                    // Append the first 5 products
+                    $.each(displayedProducts, function(index, product) {
                         productList.append(`
-                            <li class="btn btn-sm btn-primary product-item" data-name="${product.name}">
+                            <li class="btn btn-sm btn-primary product-itemm" data-name="${product.name}">
                                 ${product.name}
                             </li>
                         `);
                     });
+
+                    // Add "Load More" button if there are more products
+                    if (hiddenProducts.length > 0) {
+                        productList.append('<button id="load-more" class="btn btn-secondary btn-sm">Load More</button>');
+
+                        // Load remaining products when "Load More" is clicked
+                        $('#load-more').click(function() {
+                            $.each(hiddenProducts, function(index, product) {
+                                productList.append(`
+                                    <li class="btn btn-sm btn-primary product-itemm" data-name="${product.name}">
+                                        ${product.name}
+                                    </li>
+                                `);
+                            });
+                            $(this).remove(); // Remove the "Load More" button once all items are displayed
+                        });
+                    }
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
@@ -270,6 +291,7 @@
     // Trigger the function on page load if location_id is already set
     handleLocationChange();
 });
+
 </script>
 @endsection
 
