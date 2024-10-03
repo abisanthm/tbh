@@ -437,7 +437,7 @@
 				</div>
 			@endcomponent
 			@component('components.widget', ['class' => 'box-solid'])
-				<div class="col-md-4  @if($sale_type == 'sales_order') hide @endif">
+				<div style="display:none" class="col-md-4  @if($sale_type == 'sales_order') hide @endif">
 			        <div class="form-group">
 			            {!! Form::label('discount_type', __('sale.discount_type') . ':*' ) !!}
 			            <div class="input-group">
@@ -462,7 +462,7 @@
 			    		$default_sales_tax = null;
 			    	}
 			    @endphp
-			    <div class="col-md-4 @if($sale_type == 'sales_order') hide @endif">
+			    <div style="display:none" class="col-md-4 @if($sale_type == 'sales_order') hide @endif">
 			        <div class="form-group">
 			            {!! Form::label('discount_amount', __('sale.discount_amount') . ':*' ) !!}
 			            <div class="input-group">
@@ -473,12 +473,12 @@
 			            </div>
 			        </div>
 			    </div>
-			    <div class="col-md-4 @if($sale_type == 'sales_order') hide @endif"><br>
+			    <div style="display:none" class="col-md-4 @if($sale_type == 'sales_order') hide @endif"><br>
 			    	<b>@lang( 'sale.discount_amount' ):</b>(-) 
 					<span class="display_currency" id="total_discount">0</span>
 			    </div>
-			    <div class="clearfix"></div>
-			    <div class="col-md-12 well well-sm bg-light-gray @if(session('business.enable_rp') != 1 || $sale_type == 'sales_order') hide @endif">
+			    <div style="display:none" class="clearfix"></div>
+			    <div style="display:none" class="col-md-12 well well-sm bg-light-gray @if(session('business.enable_rp') != 1 || $sale_type == 'sales_order') hide @endif">
 			    	<input type="hidden" name="rp_redeemed" id="rp_redeemed" value="0">
 			    	<input type="hidden" name="rp_redeemed_amount" id="rp_redeemed_amount" value="0">
 			    	<div class="col-md-12"><h4>{{session('business.rp_name')}}</h4></div>
@@ -501,8 +501,8 @@
 				    	<p><strong>@lang('lang_v1.redeemed_amount'):</strong> (-)<span id="rp_redeemed_amount_text">0</span></p>
 				    </div>
 			    </div>
-			    <div class="clearfix"></div>
-			    <div class="col-md-4  @if($sale_type == 'sales_order') hide @endif">
+			    <div style="display:none" class="clearfix"></div>
+			    <div style="display:none" class="col-md-4  @if($sale_type == 'sales_order') hide @endif">
 			    	<div class="form-group">
 			            {!! Form::label('tax_rate_id', __('sale.order_tax') . ':*' ) !!}
 			            <div class="input-group">
@@ -516,7 +516,7 @@
 			            </div>
 			        </div>
 			    </div>
-			    <div class="col-md-4 col-md-offset-4  @if($sale_type == 'sales_order') hide @endif">
+			    <div style="display:none" class="col-md-4 col-md-offset-4  @if($sale_type == 'sales_order') hide @endif">
 			    	<b>@lang( 'sale.order_tax' ):</b>(+) 
 					<span class="display_currency" id="order_tax">0</span>
 			    </div>				
