@@ -235,7 +235,7 @@
 					</div>
 				@endif
 					@can('edit_invoice_number')
-					<div class="col-sm-3">
+					<div class="col-sm-4">
 						<div class="form-group">
 							{!! Form::label('invoice_no', $sale_type == 'sales_order' ? __('restaurant.order_no') : __('sale.invoice_no') . ':') !!}
 							{!! Form::text('invoice_no', null, ['class' => 'form-control', 'placeholder' => $sale_type == 'sales_order' ? __('restaurant.order_no') : __('sale.invoice_no')]); !!}
