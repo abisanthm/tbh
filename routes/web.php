@@ -193,7 +193,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('products', ProductController::class);
     Route::get('/toggle-subscription/{id}', 'SellPosController@toggleRecurringInvoices');
     Route::post('/sells/pos/get-types-of-service-details', 'SellPosController@getTypesOfServiceDetails');
-    Route::get('/sells/subscriptions', 'SellPosController@listSubscriptions');
+    Route::get('/sells/subscriptions', 'SellPosController@listSubscriptions'); 
     Route::get('/sells/duplicate/{id}', 'SellController@duplicateSell');
     Route::get('/sells/drafts', 'SellController@getDrafts');
     Route::get('/sells/convert-to-draft/{id}', 'SellPosController@convertToInvoice');

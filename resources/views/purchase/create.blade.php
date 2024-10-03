@@ -222,10 +222,7 @@
 
 	@component('components.widget', ['class' => 'box-primary'])
 		<div class="row">
-			<div class="col-sm-2 text-center">
-				<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" data-toggle="modal" data-target="#import_purchase_products_modal">@lang('product.import_products')</button>
-			</div>
-			<div class="col-sm-8">
+			<div class="col-sm-12">
 				<div class="form-group">
 					<div class="input-group">
 						<span class="input-group-addon">
@@ -233,12 +230,6 @@
 						</span>
 						{!! Form::text('search_product', null, ['class' => 'form-control mousetrap', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'), 'disabled' => $search_disable]); !!}
 					</div>
-				</div>
-			</div>
-			<div class="col-sm-2">
-				<div class="form-group">
-					<button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" 
-            	data-container=".quick_add_product_modal"><i class="fa fa-plus"></i> @lang( 'product.add_new_product' ) </button>
 				</div>
 			</div>
 		</div>
@@ -256,21 +247,18 @@
 							<tr>
 								<th>#</th>
 								<th>@lang( 'product.product_name' )</th>
-								<th>@lang( 'purchase.purchase_quantity' )</th>
-								<th>@lang( 'lang_v1.unit_cost_before_discount' )</th>
-								<th>@lang( 'lang_v1.discount_percent' )</th>
+								<th>Quantity</th>
+								<th>Unit Cost</th>
+								<th>Discount</th>
 								<th>@lang( 'purchase.unit_cost_before_tax' )</th>
 								<th class="{{$hide_tax}}">@lang( 'purchase.subtotal_before_tax' )</th>
 								<th class="{{$hide_tax}}">@lang( 'purchase.product_tax' )</th>
 								<th class="{{$hide_tax}}">@lang( 'purchase.net_cost' )</th>
-								<th>@lang( 'purchase.line_total' )</th>
+								<th class="">@lang( 'purchase.line_total' )</th>
 								<th class="@if(!session('business.enable_editing_product_from_purchase')) hide @endif">
 									@lang( 'lang_v1.profit_margin' )
 								</th>
-								<th>
-									@lang( 'purchase.unit_selling_price' )
-									<small>(@lang('product.inc_of_tax'))</small>
-								</th>
+								<th>Unit Selling Price</th>
 								@if(session('business.enable_lot_number'))
 									<th>
 										@lang('lang_v1.lot_number')

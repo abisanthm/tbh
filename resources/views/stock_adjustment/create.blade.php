@@ -244,13 +244,13 @@
                     productList.empty();  // Clear the current list
 
                     // Display only the first 5 items initially
-                    var displayedProducts = response.slice(0, 25);
-                    var hiddenProducts = response.slice(25);
+                    var displayedProducts = response.slice(0, 24);
+                    var hiddenProducts = response.slice(24);
 
                     // Append the first 5 products
                     $.each(displayedProducts, function(index, product) {
                         productList.append(`
-                            <li class="btn btn-sm btn-primary product-itemm" data-name="${product.name}">
+                            <li class="btn btn-sm btn-primary product-itemm product-item" data-name="${product.name}">
                                 ${product.name}
                             </li>
                         `);
@@ -264,7 +264,7 @@
                         $('#load-more').click(function() {
                             $.each(hiddenProducts, function(index, product) {
                                 productList.append(`
-                                    <li class="btn btn-sm btn-primary product-itemm" data-name="${product.name}">
+                                    <li class="btn btn-sm btn-primary product-itemm product-item" data-name="${product.name}">
                                         ${product.name}
                                     </li>
                                 `);

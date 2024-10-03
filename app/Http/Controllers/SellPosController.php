@@ -467,7 +467,7 @@ class SellPosController extends Controller
                 $input['selling_price_group_id'] = $price_group_id;
 
                 if ($this->transactionUtil->isModuleEnabled('tables')) {
-                    $input['res_table_id'] = request()->get('res_table_id');
+                    $input['res_table_id'] = request()->get('res_table_id');  
                 }
                 if ($this->transactionUtil->isModuleEnabled('service_staff')) {
                     $input['res_waiter_id'] = request()->get('res_waiter_id');

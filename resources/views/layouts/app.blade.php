@@ -173,10 +173,10 @@
     background-color: #007bff;
     color: white;
     border-radius: 5px;
-    padding: 15px;
+    padding: 10px;
     text-align: center;
     box-sizing: border-box;
-    min-width: 150px;
+    min-width: 100px;
 }
 
 .product-content h5 {

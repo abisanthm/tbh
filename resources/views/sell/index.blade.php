@@ -57,7 +57,7 @@
                     </div>
                 @endslot
             @endcan
-            @if (auth()->user()->can('direct_sell.view') ||
+            @if (auth()->user()->can('direct_sell.view') || 
                     auth()->user()->can('view_own_sell_only') ||
                     auth()->user()->can('view_commission_agent_sell'))
                 @php

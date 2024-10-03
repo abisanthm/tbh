@@ -167,7 +167,7 @@
 
 
         <!-- Modal -->
-        <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel">
+        <div width="1200px" class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -259,16 +259,15 @@ $(document).ready(function() {
                     productList.empty();  // Clear the current list
 
                     // Initially display only 5 products
-                    var displayedProducts = response.slice(0, 25);
-                    var hiddenProducts = response.slice(25);
+                    var displayedProducts = response.slice(0, 24);
+                    var hiddenProducts = response.slice(24);
 
                     // Append the first 5 products in a grid format
                     $.each(displayedProducts, function(index, product) {
                         productList.append(`
-                            <div class="product-itemm" data-name="${product.name}">
+                            <div class="product-itemm product-item" data-name="${product.name}">
                                 <div class="product-content">
-                                    <h5>${product.name}</h5>
-                                    <p>Stock: ${product.total_stock}</p>
+                                    <h5 style="color:white">${product.name}</h5>
                                 </div>
                             </div>
                         `);
@@ -283,14 +282,15 @@ $(document).ready(function() {
                             // Append the hidden products when "Load More" is clicked
                             $.each(hiddenProducts, function(index, product) {
                                 productList.append(`
-                                    <div class="product-itemm" data-name="${product.name}">
+                                    <div class="product-itemm product-item" data-name="${product.name}">
                                         <div class="product-content">
                                             <h5>${product.name}</h5>
-                                            <p>Stock: ${product.total_stock}</p>
                                         </div>
                                     </div>
                                 `);
                             });
+
+                            // <p>Stock: ${product.total_stock}</p>
 
                             // Remove the "Load More" button after all products are displayed
                             $(this).remove();
