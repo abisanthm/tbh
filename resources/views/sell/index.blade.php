@@ -1,36 +1,22 @@
 @extends('layouts.app')
-@section('title', __('lang_v1.all_sales'))
+@section('title', __('Cake Orders'))
 
 @section('content')
 
     <!-- Content Header (Page header) -->
     <section class="content-header no-print">
-        <h1  class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.sells')
-        </h1>
+        <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">Cake Orders</h1>
     </section>
 
     <!-- Main content -->
     <section class="content no-print">
         @component('components.filters', ['title' => __('report.filters')])
             @include('sell.partials.sell_list_filters')
-            @if ($payment_types)
-                <div class="col-md-3">
-                    <div class="form-group">
-                        {!! Form::label('payment_method', __('lang_v1.payment_method') . ':') !!}
-                        {!! Form::select('payment_method', $payment_types, null, [
-                            'class' => 'form-control select2',
-                            'style' => 'width:100%',
-                            'placeholder' => __('lang_v1.all'),
-                        ]) !!}
-                    </div>
-                </div>
-            @endif
 
             @if (!empty($sources))
                 <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('sell_list_filter_source', __('lang_v1.sources') . ':') !!}
-
                         {!! Form::select('sell_list_filter_source', $sources, null, [
                             'class' => 'form-control select2',
                             'style' => 'width:100%',
@@ -40,7 +26,7 @@
                 </div>
             @endif
         @endcomponent
-        @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.all_sales')])
+        @component('components.widget', ['class' => 'box-primary', 'title' => __('All cake orders')])
             @can('direct_sell.access')
                 @slot('tool')
                     <div class="box-tools">
@@ -57,13 +43,13 @@
                     </div>
                 @endslot
             @endcan
-            @if (auth()->user()->can('direct_sell.view') || 
+            @if (auth()->user()->can('direct_sell.view') ||
                     auth()->user()->can('view_own_sell_only') ||
                     auth()->user()->can('view_commission_agent_sell'))
                 @php
                     $custom_labels = json_decode(session('business.custom_labels'), true);
                 @endphp
-                <table class="table table-bordered table-striped ajax_view" id="sell_table">
+                <table class="table table-bordered table-striped ajax_view compact" id="sell_table">
                     <thead>
                         <tr>
                             <th>@lang('messages.action')</th>
@@ -73,41 +59,20 @@
                             <th>@lang('lang_v1.contact_no')</th>
                             <th>@lang('sale.location')</th>
                             <th>@lang('sale.payment_status')</th>
-                            <th>@lang('lang_v1.payment_method')</th>
                             <th>@lang('sale.total_amount')</th>
                             <th>@lang('sale.total_paid')</th>
                             <th>@lang('lang_v1.sell_due')</th>
-                            <th>@lang('lang_v1.sell_return_due')</th>
-                            <th>@lang('lang_v1.shipping_status')</th>
-                            <th>@lang('lang_v1.total_items')</th>
-                            <th>@lang('lang_v1.types_of_service')</th>
-                            <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1') }}
-                            </th>
-                            <th>{{ $custom_labels['sell']['custom_field_1'] ?? '' }}</th>
-                            <th>{{ $custom_labels['sell']['custom_field_2'] ?? '' }}</th>
-                            <th>{{ $custom_labels['sell']['custom_field_3'] ?? '' }}</th>
-                            <th>{{ $custom_labels['sell']['custom_field_4'] ?? '' }}</th>
-                            <th>@lang('lang_v1.added_by')</th>
                             <th>@lang('sale.sell_note')</th>
-                            <th>@lang('sale.staff_note')</th>
-                            <th>@lang('sale.shipping_details')</th>
-                            <th>@lang('restaurant.table')</th>
-                            <th>@lang('restaurant.service_staff')</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                     <tfoot>
                         <tr class="bg-gray font-17 footer-total text-center">
-                            <td colspan="6"><strong>@lang('sale.total'):</strong></td>
+                            <td colspan="5"><strong>@lang('sale.total'):</strong></td>
                             <td class="footer_payment_status_count"></td>
-                            <td class="payment_method_count"></td>
                             <td class="footer_sale_total"></td>
                             <td class="footer_total_paid"></td>
                             <td class="footer_total_remaining"></td>
-                            <td class="footer_total_sell_return_due"></td>
-                            <td colspan="2"></td>
-                            <td class="service_type_count"></td>
-                            <td colspan="7"></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -123,7 +88,7 @@
 
     <!-- This will be printed -->
     <section class="invoice print_section" id="receipt_section">
-        </section> 
+    </section>
 
 @stop
 
@@ -192,7 +157,8 @@
                 scrollY: "75vh",
                 scrollX: true,
                 scrollCollapse: true,
-                columns: [{
+                columns: [
+                    {
                         data: 'action',
                         name: 'action',
                         orderable: false,
@@ -223,11 +189,6 @@
                         name: 'payment_status'
                     },
                     {
-                        data: 'payment_methods',
-                        orderable: false,
-                        "searchable": false
-                    },
-                    {
                         data: 'final_total',
                         name: 'final_total'
                     },
@@ -241,91 +202,9 @@
                         name: 'total_remaining'
                     },
                     {
-                        data: 'return_due',
-                        orderable: false,
-                        "searchable": false
-                    },
-                    {
-                        data: 'shipping_status',
-                        name: 'shipping_status'
-                    },
-                    {
-                        data: 'total_items',
-                        name: 'total_items',
-                        "searchable": false
-                    },
-                    {
-                        data: 'types_of_service_name',
-                        name: 'tos.name',
-                        @if (empty($is_types_service_enabled))
-                            visible: false
-                        @endif
-                    },
-                    {
-                        data: 'service_custom_field_1',
-                        name: 'service_custom_field_1',
-                        @if (empty($is_types_service_enabled))
-                            visible: false
-                        @endif
-                    },
-                    {
-                        data: 'custom_field_1',
-                        name: 'transactions.custom_field_1',
-                        @if (empty($custom_labels['sell']['custom_field_1']))
-                            visible: false
-                        @endif
-                    },
-                    {
-                        data: 'custom_field_2',
-                        name: 'transactions.custom_field_2',
-                        @if (empty($custom_labels['sell']['custom_field_2']))
-                            visible: false
-                        @endif
-                    },
-                    {
-                        data: 'custom_field_3',
-                        name: 'transactions.custom_field_3',
-                        @if (empty($custom_labels['sell']['custom_field_3']))
-                            visible: false
-                        @endif
-                    },
-                    {
-                        data: 'custom_field_4',
-                        name: 'transactions.custom_field_4',
-                        @if (empty($custom_labels['sell']['custom_field_4']))
-                            visible: false
-                        @endif
-                    },
-                    {
-                        data: 'added_by',
-                        name: 'u.first_name'
-                    },
-                    {
                         data: 'additional_notes',
                         name: 'additional_notes'
-                    },
-                    {
-                        data: 'staff_note',
-                        name: 'staff_note'
-                    },
-                    {
-                        data: 'shipping_details',
-                        name: 'shipping_details'
-                    },
-                    {
-                        data: 'table_name',
-                        name: 'tables.name',
-                        @if (empty($is_tables_enabled))
-                            visible: false
-                        @endif
-                    },
-                    {
-                        data: 'waiter',
-                        name: 'ss.first_name',
-                        @if (empty($is_service_staff_enabled))
-                            visible: false
-                        @endif
-                    },
+                    }
                 ],
                 "fnDrawCallback": function(oSettings) {
                     __currency_convert_recursively($('#sell_table'));
@@ -334,7 +213,6 @@
                     var footer_sale_total = 0;
                     var footer_total_paid = 0;
                     var footer_total_remaining = 0;
-                    var footer_total_sell_return_due = 0;
                     for (var r in data) {
                         footer_sale_total += $(data[r].final_total).data('orig-value') ? parseFloat($(
                             data[r].final_total).data('orig-value')) : 0;
@@ -342,20 +220,13 @@
                             data[r].total_paid).data('orig-value')) : 0;
                         footer_total_remaining += $(data[r].total_remaining).data('orig-value') ?
                             parseFloat($(data[r].total_remaining).data('orig-value')) : 0;
-                        footer_total_sell_return_due += $(data[r].return_due).find('.sell_return_due')
-                            .data('orig-value') ? parseFloat($(data[r].return_due).find(
-                                '.sell_return_due').data('orig-value')) : 0;
                     }
 
-                    $('.footer_total_sell_return_due').html(__currency_trans_from_en(
-                        footer_total_sell_return_due));
                     $('.footer_total_remaining').html(__currency_trans_from_en(footer_total_remaining));
                     $('.footer_total_paid').html(__currency_trans_from_en(footer_total_paid));
                     $('.footer_sale_total').html(__currency_trans_from_en(footer_sale_total));
 
                     $('.footer_payment_status_count').html(__count_status(data, 'payment_status'));
-                    $('.service_type_count').html(__count_status(data, 'types_of_service_name'));
-                    $('.payment_method_count').html(__count_status(data, 'payment_methods'));
                 },
                 createdRow: function(row, data, dataIndex) {
                     $(row).find('td:eq(6)').attr('class', 'clickable_td');

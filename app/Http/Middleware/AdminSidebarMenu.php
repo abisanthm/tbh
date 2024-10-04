@@ -316,7 +316,7 @@ class AdminSidebarMenu
                             $sub->url(
                                 action([\App\Http\Controllers\SellController::class, 'indexOrder']),
                                 __('Cake Orders'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
+                                ['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'cake-orders']
                             );
                         }
                         if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
