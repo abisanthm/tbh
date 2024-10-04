@@ -216,6 +216,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/subscriptions', [SellPosController::class, 'listSubscriptions']);
     Route::get('/sells/duplicate/{id}', [SellController::class, 'duplicateSell']);
     Route::get('/sells/drafts', [SellController::class, 'getDrafts']);
+    Route::get('/sells/cake-orders', [SellController::class, 'indexOrder']);
     Route::get('/sells/convert-to-draft/{id}', [SellPosController::class, 'convertToInvoice']);
     Route::get('/sells/convert-to-proforma/{id}', [SellPosController::class, 'convertToProforma']);
     Route::get('/sells/quotations', [SellController::class, 'getQuotations']);
