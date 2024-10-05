@@ -616,16 +616,13 @@ $(document).ready(function () {
         });
     });
 
-    // Function to detect if the user is on a mobile/tablet device
-    function isMobileOrTablet() {
-        return /iPad|Android|Tablet|iPhone/i.test(navigator.userAgent);
-    }
+    let isPrintButtonClicked = false; // Flag to track if the print button is clicked
 
-    // Finalize button - opens the received amount modal
+    // Finalize button click handler
     $('button.pos-express-finalize').click(function () {
         // Check if there are products present
         if ($('table#pos_table tbody').find('.product_row').length <= 0) {
-            toastr.warning(LANG.no_products_added);
+            toastr.warning('No products added');
             return false;
         }
 
@@ -633,22 +630,18 @@ $(document).ready(function () {
         $('#received_amount').val(''); // Clear the received amount input
         $('#balance_to_return').addClass('d-none').text(''); // Hide and clear balance info
 
-        // Show the modal for entering the received amount on non-mobile devices
-        if (!isMobileOrTablet()) {
-            $('#receivedAmountModal').modal({
-                backdrop: 'static',
-                keyboard: false,
-            });
-        } else {
-            // Directly proceed to the print function if it's a mobile/tablet device
-            window.print();
-        }
+        // Always show the modal regardless of device
+        $('#receivedAmountModal').modal({
+            backdrop: 'static',
+            keyboard: false,
+            show: true,
+        });
 
         // Prefill the modal with the total amount to be paid
         $('#received_amount').focus(); // Focus on input field
     });
 
-    // Real-time calculation of balance as user enters the amount
+    // Handle modal input and balance calculation
     $('#received_amount').on('input', function () {
         let receivedAmount = parseFloat($(this).val());
         let totalPayable = parseFloat(__read_number($('input#final_total_input')));
@@ -661,7 +654,6 @@ $(document).ready(function () {
                     .addClass('alert-info')
                     .text('Balance to return: ' + balance.toFixed(2));
             } else {
-                // Show warning if received amount is less than payable amount
                 $('#balance_to_return')
                     .removeClass('d-none alert-info')
                     .addClass('alert-danger')
@@ -685,20 +677,29 @@ $(document).ready(function () {
             return false;
         }
 
+        // Set the flag to indicate the print button was clicked
+        isPrintButtonClicked = true;
+
         // Disable the print button to prevent multiple submissions
         $(this).prop('disabled', true);
 
         // Close the modal
         $('#receivedAmountModal').modal('hide');
+    });
 
-        // Proceed with printing & finalizing the sale after modal closes
-        $('#receivedAmountModal').on('hidden.bs.modal', function () {
-            // Update payment rows with the received amount (assuming single payment here)
-            var first_row = $('#payment_rows_div').find('.payment-amount').first();
-            __write_number(first_row, totalPayable);
+    // Handle modal close event
+    $('#receivedAmountModal').on('hidden.bs.modal', function () {
+        // Check if the print button was clicked
+        if (isPrintButtonClicked) {
+            // Reset the flag
+            isPrintButtonClicked = false;
+
+            // Update payment rows with the received amount
+            let first_row = $('#payment_rows_div').find('.payment-amount').first();
+            __write_number(first_row, parseFloat($('#received_amount').val()));
             first_row.trigger('change');
 
-            var payment_method_dropdown = $('#payment_rows_div')
+            let payment_method_dropdown = $('#payment_rows_div')
                 .find('.payment_types_dropdown')
                 .first();
             payment_method_dropdown.val('cash'); // Set the payment method to cash
@@ -709,7 +710,7 @@ $(document).ready(function () {
 
             // Re-enable the print button after form submission
             $('#printButton').prop('disabled', false);
-        });
+        }
     });
 
     $('div#card_details_modal').on('shown.bs.modal', function (e) {
