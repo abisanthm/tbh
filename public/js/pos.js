@@ -616,31 +616,10 @@ $(document).ready(function () {
         });
     });
 
-    //Finalize invoice, open payment modal
-    $('button#pos-finalize').click(function () {
-        //Check if product is present or not.
-        if ($('table#pos_table tbody').find('.product_row').length <= 0) {
-            toastr.warning(LANG.no_products_added);
-            return false;
-        }
-
-        if ($('#reward_point_enabled').length) {
-            var validate_rp = isValidatRewardPoint();
-            if (!validate_rp['is_valid']) {
-                toastr.error(validate_rp['msg']);
-                return false;
-            }
-        }
-
-        $('#modal_payment').modal('show');
-    });
-
-    $('#modal_payment').one('shown.bs.modal', function () {
-        $('#modal_payment').find('input').filter(':visible:first').focus().select();
-        if ($('form#edit_pos_sell_form').length == 0) {
-            $(this).find('#method_0').change();
-        }
-    });
+    // Function to detect if the user is on a mobile/tablet device
+    function isMobileOrTablet() {
+        return /iPad|Android|Tablet|iPhone/i.test(navigator.userAgent);
+    }
 
     // Finalize button - opens the received amount modal
     $('button.pos-express-finalize').click(function () {
@@ -654,11 +633,16 @@ $(document).ready(function () {
         $('#received_amount').val(''); // Clear the received amount input
         $('#balance_to_return').addClass('d-none').text(''); // Hide and clear balance info
 
-        // Show the modal for entering the received amount
-        $('#receivedAmountModal').modal({
-            backdrop: 'static',
-            keyboard: false,
-        });
+        // Show the modal for entering the received amount on non-mobile devices
+        if (!isMobileOrTablet()) {
+            $('#receivedAmountModal').modal({
+                backdrop: 'static',
+                keyboard: false,
+            });
+        } else {
+            // Directly proceed to the print function if it's a mobile/tablet device
+            window.print();
+        }
 
         // Prefill the modal with the total amount to be paid
         $('#received_amount').focus(); // Focus on input field
@@ -701,6 +685,9 @@ $(document).ready(function () {
             return false;
         }
 
+        // Disable the print button to prevent multiple submissions
+        $(this).prop('disabled', true);
+
         // Close the modal
         $('#receivedAmountModal').modal('hide');
 
@@ -719,6 +706,9 @@ $(document).ready(function () {
 
             // Submit the form to finalize the sale and print
             pos_form_obj.submit();
+
+            // Re-enable the print button after form submission
+            $('#printButton').prop('disabled', false);
         });
     });
 
