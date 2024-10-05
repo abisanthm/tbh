@@ -1,4 +1,4 @@
-<div class="row" id="featured_products_box" style="display: none;">
+<div class="row" id="featured_products_box" >
     @if (!empty($featured_products))
         @include('sale_pos.partials.featured_products')
     @endif
@@ -48,33 +48,32 @@
 
                         </div>
                         <div class="row tw-mr-5">
-                            <div class="col-md-3 col-xs-12 tw-mb-7 tw-w-auto  tw-h-auto tw-cursor-pointer  main-category-div main-category no-print"
-                                data-value="all" data-parent="0">
-                                <div class="tw-dw-card tw-w-25 tw-bg-base-100 tw-shadow-sm tw-h-auto tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer !tw-text-xs md:!tw-text-sm tw-font-semibold tw-text-center tw-border-2">
-                                    <div class="tw-dw-card-body">
-                                        <h4 class="tw-flex tw-items-center tw-justify-center" style="margin-bottom: 0px; margin-top:0px; font-size: inherit; font-weight: inherit;">@lang('lang_v1.all_category')</h4>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 tw-mb-4 main-category-div main-category no-print"
+                                    data-value="all" data-parent="0">
+                                    <div class="tw-dw-card tw-w-full tw-bg-base-100 tw-shadow-md tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer !tw-text-xs md:!tw-text-sm tw-font-semibold tw-text-center tw-border tw-h-full d-flex flex-column justify-content-center align-items-center">
+                                        <div class="tw-dw-card-body tw-p-4 tw-w-full">
+                                            <h4 class="tw-flex tw-items-center tw-justify-center m-0" style="font-size: inherit; font-weight: inherit;">
+                                                @lang('lang_v1.all_category')
+                                            </h4>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            @foreach ($categories as $category)
-                                    <div class="col-md-3 col-xs-12 tw-mb-7 tw-w-auto  tw-h-28  tw-cursor-pointer main-category-div  no-print"
-                                        data-value="{{ $category['id'] }}" data-name="{{ $category['name'] }}" data-parent="1">
-                                        <div
-                                            class="tw-dw-card tw-w-25 tw-bg-base-100 tw-shadow-sm tw-h-auto tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-text-xs md:tw-text-sm tw-font-semibold !tw-text-center tw-border-2">
-                                            <div class="tw-dw-card-body" style="margin-bottom: -20px">
-                                                <h4 class="tw-flex tw-items-center tw-justify-center"
-                                                    style="margin-bottom: 0px; margin-top:0px; font-size: inherit; font-weight: inherit;">
-                                                    {{ $category['name'] }}</h4>
-                                            </div>
-                                            <div class="tw-dw-card-actions tw-justify-center">
-                                                <button type="button" class="tw-dw-btn tw-dw-btn-accent tw-dw-btn-outline tw-dw-btn-sm main-category tw-mb-2" data-value="{{ $category['id'] }}" data-parent="0">{{ __('lang_v1.all') }}</button>
-                                                @if (!empty($category['sub_categories']))
-                                                <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-outline tw-dw-btn-sm main-category tw-mb-2" data-parent="1" data-value="{{ $category['id'] }}" data-name="{{ $category['name'] }}">@lang('pagination.next')</button>
-                                                @endif
+
+                                @foreach ($categories as $category)
+                                    <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 tw-mb-4 main-category-div main-category no-print"
+                                         data-value="{{ $category['id'] }}" data-name="{{ $category['name'] }}" data-parent="0">
+                                        <div class="tw-dw-card tw-w-full tw-bg-base-100 tw-shadow-md tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer !tw-text-xs md:!tw-text-sm tw-font-semibold tw-text-center tw-border tw-h-full d-flex flex-column justify-content-center align-items-center">
+                                            <div class="tw-dw-card-body tw-p-4 tw-w-full">
+                                                <h4 class="tw-flex tw-items-center tw-justify-center m-0" style="font-size: inherit; font-weight: inherit;">
+                                                    {{ $category['name'] }}
+                                                </h4>
                                             </div>
                                         </div>
                                     </div>
-                            @endforeach
+                                @endforeach
+                            </div>
+                            
                             @foreach ($categories as $category)
                                 @if (!empty($category['sub_categories']))
                                     <div class="{{ $category['id'] }} all-sub-category" style="display: none">

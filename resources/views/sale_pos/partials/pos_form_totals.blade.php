@@ -8,14 +8,31 @@
 					<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('sale.total'):</b> &nbsp;
 					<span class="price_total tw-text-base md:tw-text-lg tw-font-semibold">0</span>
 				</td>
-			</tr>
-			<tr>
-				@if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+				<td>
+					<span class="tw-text-base md:tw-text-lg tw-font-semibold">
+
+						<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('sale.shipping')(+)</b> 
+						<i class="fas fa-edit cursor-pointer"  title="@lang('sale.shipping')" aria-hidden="true" data-toggle="modal" data-target="#posShippingModal"></i>
+						<span id="shipping_charges_amount">0</span>
+						<input type="hidden" name="shipping_details" id="shipping_details" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_details}}@endif" data-default="">
+
+						<input type="hidden" name="shipping_address" id="shipping_address" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_address}}@endif">
+
+						<input type="hidden" name="shipping_status" id="shipping_status" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_status}}@endif">
+
+						<input type="hidden" name="delivered_to" id="delivered_to" value="@if(empty($edit)){{''}}@else{{$transaction->delivered_to}}@endif">
+
+						<input type="hidden" name="delivery_person" id="delivery_person" value="@if(empty($edit)){{''}}@else{{$transaction->delivery_person}}@endif">
+
+						<input type="hidden" name="shipping_charges" id="shipping_charges" value="@if(empty($edit)){{@num_format(0.00)}} @else{{@num_format($transaction->shipping_charges)}} @endif" data-default="0.00">
+					</span>
+				</td>
+				<td>
+					@if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
 					<td>
 						<b class="tw-text-base md:tw-text-lg tw-font-bold">
 							@if($is_discount_enabled)
 								@lang('sale.discount')
-								@show_tooltip(__('tooltip.sale_discount'))
 							@endif
 							@if($is_rp_enabled)
 								{{session('business.rp_name')}}
@@ -40,7 +57,10 @@
 						</b> 
 					</td>
 				@endif
-				<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
+				</td>
+			</tr>
+			<tr>
+				<td style="display: none" class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
 					<span class="tw-text-base md:tw-text-lg tw-font-semibold">
 						<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('sale.order_tax')(+): @show_tooltip(__('tooltip.sale_tax'))</b>
 						<i class="fas fa-edit cursor-pointer" title="@lang('sale.edit_order_tax')" aria-hidden="true" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax" ></i> 
@@ -63,7 +83,7 @@
 					</span>
 				</td>
 				<td>
-					<span class="tw-text-base md:tw-text-lg tw-font-semibold">
+					<span style="display: none" class="tw-text-base md:tw-text-lg tw-font-semibold">
 
 						<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('sale.shipping')(+): @show_tooltip(__('tooltip.shipping'))</b> 
 						<i class="fas fa-edit cursor-pointer"  title="@lang('sale.shipping')" aria-hidden="true" data-toggle="modal" data-target="#posShippingModal"></i>

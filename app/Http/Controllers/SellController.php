@@ -77,7 +77,8 @@ class SellController extends Controller
      {
          $is_admin = $this->businessUtil->is_admin(auth()->user());
      
-         if (! $is_admin && ! auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping', 'so.view_all', 'so.view_own'])) {
+         // Check for permissions to view or access orders
+         if (!$is_admin && !auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping', 'so.view_all', 'so.view_own'])) {
              abort(403, 'Unauthorized action.');
          }
      
@@ -89,300 +90,111 @@ class SellController extends Controller
          $is_types_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
      
          if (request()->ajax()) {
-             $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
-             $with = [];
-             $shipping_statuses = $this->transactionUtil->shipping_statuses();
+             $sale_type = request()->input('sale_type', 'sell');
      
-             $sale_type = ! empty(request()->input('sale_type')) ? request()->input('sale_type') : 'sell';
-     
-             $sells = $this->transactionUtil->getListSells($business_id, $sale_type);
+             // Retrieve filtered sales data
+             $sells = $this->transactionUtil->getListSells($business_id, $sale_type)
+                 ->whereHas('sell_lines', function ($query) {
+                     $query->where('product_id', 284); // Filtering by product ID
+                 });
      
              $permitted_locations = auth()->user()->permitted_locations();
              if ($permitted_locations != 'all') {
                  $sells->whereIn('transactions.location_id', $permitted_locations);
              }
      
-             // Add condition for created_by, used in sales representative sales report
-             if (request()->has('created_by')) {
-                 $created_by = request()->get('created_by');
-                 if (! empty($created_by)) {
-                     $sells->where('transactions.created_by', $created_by);
-                 }
+             // Filter by created_by, location_id, customer, payment_status, etc.
+             if (!empty(request()->created_by)) {
+                 $sells->where('transactions.created_by', request()->created_by);
              }
      
-             // Add condition for product_id (in this case, product ID is 284)
-             $product_id = 284;
-             $sells->whereHas('sell_lines', function ($query) use ($product_id) {
-                 $query->where('product_id', $product_id);
-             });
-     
-             $partial_permissions = ['view_own_sell_only', 'view_commission_agent_sell', 'access_own_shipping', 'access_commission_agent_shipping'];
-             if (! auth()->user()->can('direct_sell.view')) {
-                 $sells->where(function ($q) {
-                     if (auth()->user()->hasAnyPermission(['view_own_sell_only', 'access_own_shipping'])) {
-                         $q->where('transactions.created_by', request()->session()->get('user.id'));
-                     }
-     
-                     // if user is commission agent display only assigned sells
-                     if (auth()->user()->hasAnyPermission(['view_commission_agent_sell', 'access_commission_agent_shipping'])) {
-                         $q->orWhere('transactions.commission_agent', request()->session()->get('user.id'));
-                     }
-                 });
+             if (!empty(request()->location_id)) {
+                 $sells->where('transactions.location_id', request()->location_id);
              }
      
-             $only_shipments = request()->only_shipments == 'true' ? true : false;
-             if ($only_shipments) {
-                 $sells->whereNotNull('transactions.shipping_status');
-     
-                 if (auth()->user()->hasAnyPermission(['access_pending_shipments_only'])) {
-                     $sells->where('transactions.shipping_status', '!=', 'delivered');
-                 }
+             if (!empty(request()->customer_id)) {
+                 $sells->where('contacts.id', request()->customer_id);
              }
      
-             if (! $is_admin && ! $only_shipments && $sale_type != 'sales_order') {
-                 $payment_status_arr = [];
-                 if (auth()->user()->can('view_paid_sells_only')) {
-                     $payment_status_arr[] = 'paid';
-                 }
-     
-                 if (auth()->user()->can('view_due_sells_only')) {
-                     $payment_status_arr[] = 'due';
-                 }
-     
-                 if (auth()->user()->can('view_partial_sells_only')) {
-                     $payment_status_arr[] = 'partial';
-                 }
-     
-                 if (empty($payment_status_arr)) {
-                     if (auth()->user()->can('view_overdue_sells_only')) {
-                         $sells->OverDue();
-                     }
-                 } else {
-                     if (auth()->user()->can('view_overdue_sells_only')) {
-                         $sells->where(function ($q) use ($payment_status_arr) {
-                             $q->whereIn('transactions.payment_status', $payment_status_arr)
-                             ->orWhere(function ($qr) {
-                                 $qr->OverDue();
-                             });
-                         });
-                     } else {
-                         $sells->whereIn('transactions.payment_status', $payment_status_arr);
-                     }
-                 }
-             }
-     
-             if (! empty(request()->input('payment_status')) && request()->input('payment_status') != 'overdue') {
-                 $sells->where('transactions.payment_status', request()->input('payment_status'));
-             } elseif (request()->input('payment_status') == 'overdue') {
-                 $sells->whereIn('transactions.payment_status', ['due', 'partial'])
-                     ->whereNotNull('transactions.pay_term_number')
-                     ->whereNotNull('transactions.pay_term_type')
-                     ->whereRaw("IF(transactions.pay_term_type='days', DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number DAY) < CURDATE(), DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number MONTH) < CURDATE())");
-             }
-     
-             // Add condition for location, used in sales representative expense report
-             if (request()->has('location_id')) {
-                 $location_id = request()->get('location_id');
-                 if (! empty($location_id)) {
-                     $sells->where('transactions.location_id', $location_id);
-                 }
-             }
-     
-             if (! empty(request()->input('rewards_only')) && request()->input('rewards_only') == true) {
-                 $sells->where(function ($q) {
-                     $q->whereNotNull('transactions.rp_earned')
-                     ->orWhere('transactions.rp_redeemed', '>', 0);
-                 });
-             }
-     
-             if (! empty(request()->customer_id)) {
-                 $customer_id = request()->customer_id;
-                 $sells->where('contacts.id', $customer_id);
-             }
-             if (! empty(request()->start_date) && ! empty(request()->end_date)) {
+             if (!empty(request()->start_date) && !empty(request()->end_date)) {
                  $start = request()->start_date;
                  $end = request()->end_date;
                  $sells->whereDate('transactions.transaction_date', '>=', $start)
-                             ->whereDate('transactions.transaction_date', '<=', $end);
+                     ->whereDate('transactions.transaction_date', '<=', $end);
              }
      
-             // Check is_direct sell
-             if (request()->has('is_direct_sale')) {
-                 $is_direct_sale = request()->is_direct_sale;
-                 if ($is_direct_sale == 0) {
-                     $sells->where('transactions.is_direct_sale', 0);
-                     $sells->whereNull('transactions.sub_type');
-                 }
-             }
-     
-             // Add condition for commission_agent, used in sales representative sales with commission report
-             if (request()->has('commission_agent')) {
-                 $commission_agent = request()->get('commission_agent');
-                 if (! empty($commission_agent)) {
-                     $sells->where('transactions.commission_agent', $commission_agent);
-                 }
-             }
-     
-             if (! empty(request()->input('source'))) {
-                 // only exception for woocommerce
-                 if (request()->input('source') == 'woocommerce') {
-                     $sells->whereNotNull('transactions.woocommerce_order_id');
+             if (!empty(request()->payment_status)) {
+                 if (request()->payment_status == 'overdue') {
+                     $sells->whereIn('transactions.payment_status', ['due', 'partial'])
+                         ->whereNotNull('transactions.pay_term_number')
+                         ->whereNotNull('transactions.pay_term_type')
+                         ->whereRaw("IF(transactions.pay_term_type='days', DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number DAY) < CURDATE(), DATE_ADD(transactions.transaction_date, INTERVAL transactions.pay_term_number MONTH) < CURDATE())");
                  } else {
-                     $sells->where('transactions.source', request()->input('source'));
+                     $sells->where('transactions.payment_status', request()->payment_status);
                  }
              }
      
-             if ($is_crm) {
-                 $sells->addSelect('transactions.crm_is_order_request');
-     
-                 if (request()->has('crm_is_order_request')) {
-                     $sells->where('transactions.crm_is_order_request', 1);
-                 }
-             }
-     
-             if (request()->only_subscriptions) {
-                 $sells->where(function ($q) {
-                     $q->whereNotNull('transactions.recur_parent_id')
-                         ->orWhere('transactions.is_recurring', 1);
-                 });
-             }
-     
-             if (! empty(request()->list_for) && request()->list_for == 'service_staff_report') {
-                 $sells->whereNotNull('transactions.res_waiter_id');
-             }
-     
-             if (! empty(request()->res_waiter_id)) {
-                 $sells->where('transactions.res_waiter_id', request()->res_waiter_id);
-             }
-     
-             if (! empty(request()->input('sub_type'))) {
-                 $sells->where('transactions.sub_type', request()->input('sub_type'));
-             }
-     
-             if (! empty(request()->input('created_by'))) {
-                 $sells->where('transactions.created_by', request()->input('created_by'));
-             }
-     
-             if (! empty(request()->input('status'))) {
-                 $sells->where('transactions.status', request()->input('status'));
-             }
-     
-             if (! empty(request()->input('sales_cmsn_agnt'))) {
-                 $sells->where('transactions.commission_agent', request()->input('sales_cmsn_agnt'));
-             }
-     
-             if (! empty(request()->input('service_staffs'))) {
-                 $sells->where('transactions.res_waiter_id', request()->input('service_staffs'));
-             }
-     
-             $only_pending_shipments = request()->only_pending_shipments == 'true' ? true : false;
-             if ($only_pending_shipments) {
-                 $sells->where('transactions.shipping_status', '!=', 'delivered')
-                         ->whereNotNull('transactions.shipping_status');
-                 $only_shipments = true;
-             }
-     
-             if (! empty(request()->input('shipping_status'))) {
-                 $sells->where('transactions.shipping_status', request()->input('shipping_status'));
-             }
-     
-             if (! empty(request()->input('for_dashboard_sales_order'))) {
-                 $sells->whereIn('transactions.status', ['partial', 'ordered'])
-                     ->orHavingRaw('so_qty_remaining > 0');
-             }
-     
-             if ($sale_type == 'sales_order') {
-                 if (! auth()->user()->can('so.view_all') && auth()->user()->can('so.view_own')) {
-                     $sells->where('transactions.created_by', request()->session()->get('user.id'));
-                 }
-             }
-     
-             if (! empty(request()->input('delivery_person'))) {
-                 $sells->where('transactions.delivery_person', request()->input('delivery_person'));
-             }
-     
+             // Grouping to avoid duplicate entries for multiple sell lines
              $sells->groupBy('transactions.id');
      
-             if (! empty(request()->suspended)) {
-                 $transaction_sub_type = request()->get('transaction_sub_type');
-                 if (! empty($transaction_sub_type)) {
-                     $sells->where('transactions.sub_type', $transaction_sub_type);
-                 } else {
-                     $sells->where('transactions.sub_type', null);
-                 }
-     
-                 $with = ['sell_lines'];
-     
-                 if ($is_tables_enabled) {
-                     $with[] = 'table';
-                 }
-     
-                 if ($is_service_staff_enabled) {
-                     $with[] = 'service_staff';
-                 }
-     
-                 $sales = $sells->where('transactions.is_suspend', 1)
-                             ->with($with)
-                             ->addSelect('transactions.is_suspend', 'transactions.res_table_id', 'transactions.res_waiter_id', 'transactions.additional_notes')
-                             ->get();
-     
-                 return view('sale_pos.partials.suspended_sales_modal')->with(compact('sales', 'is_tables_enabled', 'is_service_staff_enabled', 'transaction_sub_type'));
-             }
-     
-             $with[] = 'payment_lines';
-             
-             if (!empty($with)) {
-                 foreach ($with as $relation) {
-                     if ($relation == 'payment_lines' && !empty(request()->input('payment_method'))) {
-                         $sells->whereHas($relation, function ($query) {
-                             $query->where('method', request()->input('payment_method'));
-                         });
-                     } else {
-                         $sells->with($relation);
-                     }
-                 }
-             }
-     
-             if ($this->businessUtil->isModuleEnabled('subscription')) {
-                 $sells->addSelect('transactions.is_recurring', 'transactions.recur_parent_id');
-             }
-             $sales_order_statuses = Transaction::sales_order_statuses();
              $datatable = Datatables::of($sells)
-                 // Add other columns and modify as needed
-                 ->make(true);
+                 ->addColumn(
+                     'action',
+                     function ($row) {
+                         $html = '<div class="btn-group">';
+                         $html .= '<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">' . __('messages.actions') . '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>';
+                         $html .= '<ul class="dropdown-menu dropdown-menu-left" role="menu">';
      
-             return $datatable;
+                         // Permissions and Actions
+                         if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
+                             $html .= '<li><a href="#" data-href="' . action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> ' . __('messages.view') . '</a></li>';
+                         }
+                         
+                         // Edit and delete actions
+                         if (auth()->user()->can('sell.update')) {
+                             $html .= '<li><a target="_blank" href="' . action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]) . '"><i class="fas fa-edit"></i> ' . __('messages.edit') . '</a></li>';
+                         }
+                         if (auth()->user()->can('sell.delete')) {
+                             $html .= '<li><a href="' . action([\App\Http\Controllers\SellPosController::class, 'destroy'], [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __('messages.delete') . '</a></li>';
+                         }
+     
+                         $html .= '</ul></div>';
+                         return $html;
+                     }
+                 )
+                 ->removeColumn('id')
+                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+                 ->editColumn('final_total', '<span class="final-total" data-orig-value="{{$final_total}}">@format_currency($final_total)</span>')
+                 ->editColumn('payment_status', function ($row) {
+                     return (string)view('sell.partials.payment_status', ['payment_status' => Transaction::getPaymentStatus($row), 'id' => $row->id]);
+                 })
+                 ->setRowAttr([
+                     'data-href' => function ($row) {
+                         if (auth()->user()->can('sell.view') || auth()->user()->can('view_own_sell_only')) {
+                             return action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]);
+                         }
+                         return '';
+                     },
+                 ]);
+     
+             $rawColumns = ['action', 'final_total', 'payment_status'];
+             return $datatable->rawColumns($rawColumns)->make(true);
          }
      
          $business_locations = BusinessLocation::forDropdown($business_id, false);
          $customers = Contact::customersDropdown($business_id, false);
          $sales_representative = User::forDropdown($business_id, false, false, true);
-     
-         // Commission agent filter
-         $is_cmsn_agent_enabled = request()->session()->get('business.sales_cmsn_agnt');
-         $commission_agents = [];
-         if (! empty($is_cmsn_agent_enabled)) {
-             $commission_agents = User::forDropdown($business_id, false, true, true);
-         }
-     
-         // Service staff filter
-         $service_staffs = null;
-         if ($this->productUtil->isModuleEnabled('service_staff')) {
-             $service_staffs = $this->productUtil->serviceStaffDropdown($business_id);
-         }
-     
          $shipping_statuses = $this->transactionUtil->shipping_statuses();
-     
          $sources = $this->transactionUtil->getSources($business_id);
          if ($is_woocommerce) {
              $sources['woocommerce'] = 'Woocommerce';
          }
-     
          $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
      
          return view('sell.cake_order')
-         ->with(compact('business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'service_staffs', 'is_tables_enabled', 'is_service_staff_enabled', 'is_types_service_enabled', 'shipping_statuses', 'sources', 'payment_types'));
+             ->with(compact('business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_tables_enabled', 'is_service_staff_enabled', 'is_types_service_enabled', 'shipping_statuses', 'sources', 'payment_types'));
      }
+     
 
 
     public function index()

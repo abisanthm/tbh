@@ -125,7 +125,6 @@
                         <div
                             class="tw-text-black tw-font-bold tw-text-base md:tw-text-2xl tw-flex tw-items-center tw-flex-col">
                             <div>Total</div>
-                            <div>Payable:</div>
                         </div>
                         <input type="hidden" name="final_total" id="final_total_input" value="0.00">
                         <span id="total_payable"
@@ -145,6 +144,36 @@
         </div>
     </div>
 </div>
+<!-- Modal for Entering Received Amount -->
+<div class="modal fade" id="receivedAmountModal" tabindex="-1" role="dialog" aria-labelledby="receivedAmountModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="receivedAmountModalLabel">Enter Received Amount</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="receivedAmountForm">
+                    <div class="form-group">
+                        <label for="received_amount" class="col-form-label">Received Amount:</label>
+                        <input type="number" class="form-control" id="received_amount" placeholder="Enter received amount" required>
+                    </div>
+                    <div id="balance_to_return" class="alert alert-info d-none"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="printButton">Print & Finalize</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 @if (isset($transaction))
     @include('sale_pos.partials.edit_discount_modal', [
         'sales_discount' => $transaction->discount_amount,

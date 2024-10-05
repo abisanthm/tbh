@@ -21,7 +21,7 @@
 			value="{{$so_line->id}}">
 		@endif
 		@php
-			$product_name = $product->product_name . '<br/>' . $product->sub_sku ;
+			$product_name = $product->product_name  ;
 			if(!empty($product->brand)){ $product_name .= ' ' . $product->brand ;}
 		@endphp
 
@@ -177,7 +177,7 @@
 	@endif
 	@if(!empty($is_direct_sell))
   		<br>
-  		<textarea class="form-control" name="products[{{$row_count}}][sell_line_note]" rows="2">{{$sell_line_note}}</textarea>
+  		<textarea class="form-control" name="sale_note" rows="2">{{$sell_line_note}}</textarea>
   		<p class="help-block"><small>@lang('lang_v1.sell_line_description_help')</small></p>
 	@endif
 	</td>
@@ -249,8 +249,7 @@
 		
 		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_id}}">
 		@if(count($sub_units) > 0)
-			<br>
-			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
+			<select style="display:none" name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
                 @foreach($sub_units as $key => $value)
                     <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" @if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key) selected @endif>
                         {{$value['name']}}

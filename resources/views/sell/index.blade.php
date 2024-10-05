@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __('Cake Orders'))
+@section('title', __('All Sales'))
 
 @section('content')
 
     <!-- Content Header (Page header) -->
     <section class="content-header no-print">
-        <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">Cake Orders</h1>
+        <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">All Sales</h1>
     </section>
 
     <!-- Main content -->
@@ -26,7 +26,7 @@
                 </div>
             @endif
         @endcomponent
-        @component('components.widget', ['class' => 'box-primary', 'title' => __('All cake orders')])
+        @component('components.widget', ['class' => 'box-primary', 'title' => __('All sales')])
             @can('direct_sell.access')
                 @slot('tool')
                     <div class="box-tools">
@@ -155,8 +155,8 @@
                     }
                 },
                 scrollY: "75vh",
-                scrollX: true,
-                scrollCollapse: true,
+                scrollX: false,
+                scrollCollapse:false,
                 columns: [
                     {
                         data: 'action',
@@ -202,10 +202,13 @@
                         name: 'total_remaining'
                     },
                     {
-                        data: 'additional_notes',
-                        name: 'additional_notes'
+                        data: 'sell_line_note', // Added sell_line_note column
+                        name: 'sell_line_note',
+                        render: function(data, type, row) {
+                            return data ? data : 'N/A'; // Return 'N/A' if no note available
+                        }
                     }
-                ],
+                ],  
                 "fnDrawCallback": function(oSettings) {
                     __currency_convert_recursively($('#sell_table'));
                 },
