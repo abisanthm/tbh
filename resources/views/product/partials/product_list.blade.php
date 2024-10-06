@@ -1,18 +1,16 @@
 @php 
-    $colspan = 11;
+    $colspan = 9;
 @endphp
 <table border='2' class="table table-bordered table-striped ajax_view hide-footer" id="product_table">
     <thead>
         <tr>
             <th><input type="checkbox" id="select-all-row" data-table-id="product_table"></th>
-            <th width="10px">Image</th>
             <th>@lang('messages.action')</th>
             <th>@lang('sale.product')</th>
             <th>Business Location</th>
             <th >Purchase Price</th>
             <th >Sales Price</th>
             <th>Stocks</th>
-            <th>@lang('product.product_type')</th>
             <th>@lang('product.category')</th>
             <th>@lang('product.sku')</th>
         </tr>

@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\ProductsCreatedOrModified;
+use Carbon\Carbon;
+
 
 class ProductController extends Controller
 {
@@ -177,7 +179,7 @@ class ProductController extends Controller
 
             $type = request()->get('type', null);
             if (! empty($type)) {
-                $products->where('products.type', $type);
+                $products->where('products.not_for_selling', $type);
             }
 
             $category_id = request()->get('category_id', null);
@@ -2459,5 +2461,59 @@ class ProductController extends Controller
         }
         
         return response()->json($results);
+    }
+
+    public function productStockGroupedByOpeningStock()
+    {
+        if (! auth()->user()->can('product.view')) {
+            abort(403, 'Unauthorized action.');
+        }
+    
+        $business_id = request()->session()->get('user.business_id');
+    
+        $products = Product::where('business_id', $business_id)
+        ->with(['variations', 'variations.variation_location_details'])
+        ->get();
+        
+        $product_stocks = [];
+    
+        foreach ($products as $product) {
+            foreach ($product->variations as $variation) {
+                $location_id = 'BL0001';
+                $stock_history = $this->productUtil->getVariationStockHistory($business_id, $variation->id, $location_id);
+        
+                // Debugging output
+                if (empty($stock_history)) {
+                    \Log::info("No stock history found for variation_id: " . $variation->id);
+                }
+        
+                foreach ($stock_history as $history) {
+                    if ($history['type'] == 'opening_stock') {
+                        $date = Carbon::parse($history['date'])->toDateString();
+        
+                        if (!isset($product_stocks[$date])) {
+                            $product_stocks[$date] = [];
+                        }
+        
+                        $product_stocks[$date][] = [
+                            'product_name' => $product->name,
+                            'variation_name' => $variation->name,
+                            'stock' => $history['stock'],
+                            'date' => $date,
+                            'opening_stock_type' => $history['type_label']
+                        ];
+        
+                        // Debugging output
+                        \Log::info("Added stock for product: " . $product->name . " on date: " . $date);
+                    }
+                }
+            }
+        }
+        
+    
+        // Sort product stocks by date
+        ksort($product_stocks);
+
+        return array_reverse($stock_history);
     }
 }

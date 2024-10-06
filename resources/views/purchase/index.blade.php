@@ -37,7 +37,7 @@
                     ]) !!}
                 </div>
             </div>
-            <div class="col-md-3">
+            {{-- <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('purchase_list_filter_status', __('purchase.purchase_status') . ':') !!}
                     {!! Form::select('purchase_list_filter_status', $orderStatuses, null, [
@@ -46,7 +46,7 @@
                         'placeholder' => __('lang_v1.all'),
                     ]) !!}
                 </div>
-            </div>
+            </div> --}}
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('purchase_list_filter_payment_status', __('purchase.payment_status') . ':') !!}

@@ -24,7 +24,7 @@
                             {!! Form::label('type', __('product.product_type') . ':') !!}
                             {!! Form::select(
                                 'type',
-                                ['single' => __('lang_v1.single'), 'variable' => __('lang_v1.variable'), 'combo' => __('lang_v1.combo')],
+                                ['1' => __('Bakery Products'), '2' => __('Discontinued'), '3' => __('Sale Item'), '0' => __('Production Items')],
                                 null,
                                 [
                                     'class' => 'form-control select2',
@@ -69,61 +69,8 @@
                             ]) !!}
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            {!! Form::label('brand_id', __('product.brand') . ':') !!}
-                            {!! Form::select('brand_id', $brands, null, [
-                                'class' => 'form-control select2',
-                                'style' => 'width:100%',
-                                'id' => 'product_list_filter_brand_id',
-                                'placeholder' => __('lang_v1.all'),
-                            ]) !!}
-                        </div>
-                    </div>
-                    <div class="col-md-3" id="location_filter">
-                        <div class="form-group">
-                            {!! Form::label('location_id', __('purchase.business_location') . ':') !!}
-                            {!! Form::select('location_id', $business_locations, null, [
-                                'class' => 'form-control select2',
-                                'style' => 'width:100%',
-                                'placeholder' => __('lang_v1.all'),
-                            ]) !!}
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <br>
-                        <div class="form-group">
-                            {!! Form::select(
-                                'active_state',
-                                ['active' => __('business.is_active'), 'inactive' => __('lang_v1.inactive')],
-                                null,
-                                [
-                                    'class' => 'form-control select2',
-                                    'style' => 'width:100%',
-                                    'id' => 'active_state',
-                                    'placeholder' => __('lang_v1.all'),
-                                ],
-                            ) !!}
-                        </div>
-                    </div>
 
-                    <!-- include module filter -->
-                    @if (!empty($pos_module_data))
-                        @foreach ($pos_module_data as $key => $value)
-                            @if (!empty($value['view_path']))
-                                @includeIf($value['view_path'], ['view_data' => $value['view_data']])
-                            @endif
-                        @endforeach
-                    @endif
-
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <br>
-                            <label>
-                                {!! Form::checkbox('not_for_selling', 1, false, ['class' => 'input-icheck', 'id' => 'not_for_selling']) !!} <strong>@lang('lang_v1.not_for_selling')</strong>
-                            </label>
-                        </div>
-                    </div>
+                   
                     @if ($is_woocommerce)
                         <div class="col-md-3">
                             <div class="form-group">
@@ -268,10 +215,6 @@
                         data: 'mass_delete'
                     },
                     {
-                        data: 'image',
-                        name: 'products.image'
-                    },
-                    {
                         data: 'action',
                         name: 'action'
                     },
@@ -299,10 +242,6 @@
                     @endcan {
                         data: 'current_stock',
                         searchable: false
-                    },
-                    {
-                        data: 'type',
-                        name: 'products.type'
                     },
                     {
                         data: 'category',
@@ -674,8 +613,8 @@
                         processing: true,
                         serverSide: true,
                         scrollY: "75vh",
-                        scrollX: true,
-                        scrollCollapse: true,
+                        scrollX: false,
+                        scrollCollapse: false,
                         ajax: {
                             url: '/reports/stock-report',
                             data: function(d) {

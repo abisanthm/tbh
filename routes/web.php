@@ -160,6 +160,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
 
     Route::get('products/autocomplete', [ProductController::class, 'productsAutocomplete'])->name('productsAutocomplete');
     Route::get('/products/stock-history/{id}', [ProductController::class, 'productStockHistory']);
+    Route::get('/products/stock-history-list', [ProductController::class, 'productStockGroupedByOpeningStock']);
     Route::get('/delete-media/{media_id}', [ProductController::class, 'deleteMedia']);
     Route::post('/products/mass-deactivate', [ProductController::class, 'massDeactivate']);
     Route::get('/products/activate/{id}', [ProductController::class, 'activate']);
